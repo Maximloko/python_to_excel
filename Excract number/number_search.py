@@ -95,7 +95,7 @@ phone_v8 = re.compile(r'''(
 #  '219-449' - is a number, some 6-digit numbers are salary "130-000"
 # 3-752-983-16-83 -  incorrect (correct 375298316831), but if you add \D or \s the number at the end of the line will
 # not be found
-wb = openpyxl.load_workbook('бетонщики без дублей.xlsx')
+wb = openpyxl.load_workbook('vacancies.xlsx')
 
 sheet = wb['Лист1']
 phone_numbers = []
@@ -134,5 +134,9 @@ for row in range(1, sheet.max_row):
         if phone_num not in phone_numbers:
             phone_numbers.append(phone_num)
 
-with open('phone numbers.txt', 'w') as f:
-    f.write('\n'.join(phone_numbers))
+wb.create_sheet(title='Phone numbers in order')
+table_of_numbers = wb['Phone numbers in order']
+for i, line in enumerate(phone_numbers, start=1):
+    table_of_numbers['A' + str(i)] = line
+
+wb.save('update.xlsx')
