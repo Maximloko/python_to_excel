@@ -1,6 +1,5 @@
 import openpyxl
 from openpyxl.utils.cell import column_index_from_string
-# openpyxl.worksheet.worksheet_module
 import re
 
 ''' Creating an excel file based on another excel file '''
@@ -23,7 +22,6 @@ for row in range(2, sheet.max_row):
     else:
         pass  # пометить строку с пустым значением 'S28'
 sheet = wb['filtered rows']
-# wb.save('test.xlsx')
 empty_rows = [i for i in range(2, sheet.max_row)
               if sheet.cell(row=i, column=column_index_from_string('S')).value is None]
 for i in reversed(empty_rows):
@@ -38,12 +36,12 @@ for row in range(2, sheet.max_row):
         table['G'+str(row)] = 'Declined'
         value_N = sheet.cell(row=row, column=column_index_from_string('N')).value
         table['H'+str(row)] = f'The customer with application number {value_A} was rejected due to {value_N}.'
-    if sheet.cell(row=row, column=column_index_from_string('O')).value == 'Approved':
+    elif sheet.cell(row=row, column=column_index_from_string('O')).value == 'Approved':
         table['C' + str(row)] = value_S
         table['G' + str(row)] = 'Approved'
         value_E = sheet.cell(row=row, column=column_index_from_string('E')).value
         table['H' + str(row)] = f'The customer with application number {value_A} has got {value_E}.'
-    if sheet.cell(row=row, column=column_index_from_string('O')).value == 'IPA':
+    elif sheet.cell(row=row, column=column_index_from_string('O')).value == 'IPA':
         if sheet.cell(row=row, column=column_index_from_string('Y')).value is None:
             if sheet.cell(row=row, column=column_index_from_string('C')).value == 'STPK':
                 table['C' + str(row)] = value_S
@@ -68,6 +66,28 @@ for row in range(2, sheet.max_row):
                 table['G' + str(row)] = 'Pending'
                 table['H' + str(row)] = f'The client with application number {value_A} has gotten initial approval' \
                                         f' from the bank. The bank will contact the client.'
+        elif sheet.cell(row=row, column=column_index_from_string('Y')).value == 'DROPOFF':
+            table['C' + str(row)] = value_S
+            table['G' + str(row)] = 'Pending'
+            table['H' + str(row)] = f'The client with application number {value_A} has dropped the video KYC.' \
+                                    f' Ask the client to complete it by using this link http://www.axisbank.com/vkyc.'
+        else:
+            table['C' + str(row)] = value_S
+            table['G' + str(row)] = 'Pending'
+            table['H' + str(row)] = f'The client with application number {value_A} has finished the video KYC.' \
+                                    f' The client has to wait the final decision of the bank.'
+    elif sheet.cell(row=row, column=column_index_from_string('O')).value == 'RCU' or 'U/W' or 'UW Completed':
+        table['C' + str(row)] = value_S
+        table['G' + str(row)] = 'Pending'
+        table['H' + str(row)] = f'The client’s application is {value_A}. The Risk Team of the Bank is checking ' \
+                                f'the profile, so your client has to wait.'
+    elif sheet.cell(row=row, column=column_index_from_string('O')).value in \
+            ('Audit', 'Rework', 'FI', 'Hunter', 'Multi-account case'):
+        table['C' + str(row)] = value_S
+        table['G' + str(row)] = 'Pending'
+        table['H' + str(row)] = f'The client’s application is {value_A}. The bank is checking the profile,' \
+                                f' so your client has to wait.'
+
 
 result.save('test3.xlsx')
 
